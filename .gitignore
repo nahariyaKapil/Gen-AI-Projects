@@ -1,0 +1,147 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Secrets and sensitive files
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.toml
+.streamlit/secrets.toml
+config/secrets.json
+
+# Google Cloud
+.gcloud/
+service-account-key.json
+gcp-credentials.json
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
+logs/
+log/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Backup files
+*.bak
+*.backup
+
+# ===== INFORMATIONAL FILES (For User Reference Only) =====
+# These files are guides/summaries for the user, not part of the actual project
+
+# Git setup and security guides
+GIT_SETUP_COMMANDS.md
+SECURITY_CLEANUP_SUMMARY.md
+ENVIRONMENT_SETUP.md
+
+# Setup and deployment guides
+SETUP_PREREQUISITES.md
+DEPLOYMENT_COMMANDS_ALL_PROJECTS.md
+DEPLOYMENT_SUMMARY.md
+
+# Quick reference files
+URLS_QUICK_ACCESS.txt
+DEPLOYMENT_STATUS.md
+
+# Test and completion reports
+FINAL_PORTFOLIO_TEST.py
+TEST_REPORT.md
+PORTFOLIO_TEST_REPORT_*.md
+TRANSFORMATION_COMPLETION_REPORT.md
+
+# Deployment scripts (contain specific project info)
+deploy-all.sh
+deploy-all-cloudbuild.sh
+deploy-cost-dashboard.sh
+
+# Security and setup summaries
+SECURITY_FIXES_SUMMARY.md
+
+# ===== END INFORMATIONAL FILES ===== 

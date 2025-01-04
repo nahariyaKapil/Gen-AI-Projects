@@ -1,0 +1,95 @@
+# Cost-Optimized Cloud Run Service Configuration
+# Deploy with: gcloud run services replace cloud-run-cost-optimized.yaml
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: genai-portfolio-optimized
+  annotations:
+    # Scale to zero when idle - NO COST when not used
+    autoscaling.knative.dev/minScale: "0"
+    autoscaling.knative.dev/maxScale: "5"
+    
+    # Aggressive scale-down for cost savings
+    autoscaling.knative.dev/scaleDownDelay: "0s"
+    autoscaling.knative.dev/stableWindow: "60s"
+    
+    # Cost optimization settings
+    run.googleapis.com/cpu-throttling: "true"
+    run.googleapis.com/execution-environment: gen2
+    
+    # Cost monitoring labels
+    cost-center: "genai-portfolio"
+    environment: "production"
+    billing-owner: "developer"
+    
+spec:
+  template:
+    metadata:
+      annotations:
+        # Resource limits for cost control
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "5"
+        
+        # Optimize for cost over performance
+        run.googleapis.com/memory: "2Gi"
+        run.googleapis.com/cpu: "1"
+        
+        # Faster cold starts
+        run.googleapis.com/startup-cpu-boost: "true"
+        
+    spec:
+      # Optimize container startup time
+      containerConcurrency: 10
+      timeoutSeconds: 300
+      
+      containers:
+      - name: genai-app
+        # Use existing working image as base
+        image: gcr.io/1010001041748/rag-assistant:latest
+        
+        ports:
+        - containerPort: 8080
+        
+        env:
+        # Enable cost optimization features
+        - name: LAZY_MODEL_LOADING
+          value: "true"
+        - name: AUTO_CLEANUP_ENABLED
+          value: "true"
+        - name: COST_OPTIMIZATION_MODE
+          value: "aggressive"
+        - name: SCALE_TO_ZERO_TIMEOUT
+          value: "300"
+        - name: COST_DAILY_LIMIT
+          value: "15.0"
+        - name: COST_MONTHLY_LIMIT
+          value: "150.0"
+        - name: IDLE_TIMEOUT_MINUTES
+          value: "5"
+        - name: CLEANUP_INTERVAL_MINUTES
+          value: "30"
+        
+        # Resource limits to control costs
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+          requests:
+            cpu: "100m"  # Very low request for cost optimization
+            memory: "256Mi"
+        
+        # Health checks for proper scaling
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5 

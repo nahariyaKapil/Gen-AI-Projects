@@ -1,0 +1,159 @@
+# Cost-Optimized Google Cloud Run Deployment
+# Scales to ZERO when idle - NO CHARGES when not in use
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    # Scale to zero when idle - NO COST when not used
+    autoscaling.knative.dev/minScale: "0"
+    autoscaling.knative.dev/maxScale: "10"
+    
+    # Aggressive scale-down for cost savings
+    autoscaling.knative.dev/scaleDownDelay: "0s"
+    autoscaling.knative.dev/stableWindow: "60s"
+    
+    # Cost optimization settings
+    run.googleapis.com/cpu-throttling: "true"
+    run.googleapis.com/execution-environment: gen2
+    
+    # Enable binary authorization for security
+    run.googleapis.com/binary-authorization-breakglass: "false"
+    
+  name: genai-portfolio
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        # Resource limits for cost control
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "5"
+        
+        # Optimize for cost over performance
+        run.googleapis.com/memory: "2Gi"
+        run.googleapis.com/cpu: "1"
+        
+        # Faster cold starts
+        run.googleapis.com/startup-cpu-boost: "true"
+        
+        # Cost monitoring labels
+        cost-center: "genai-portfolio"
+        environment: "production"
+        billing-owner: "developer"
+        
+    spec:
+      # Optimize container startup time
+      containerConcurrency: 10
+      timeoutSeconds: 300
+      
+      containers:
+      - name: genai-app
+        image: gcr.io/PROJECT_ID/genai-portfolio:latest
+        
+        ports:
+        - containerPort: 8080
+        
+        env:
+        # Enable lazy loading for cost optimization
+        - name: LAZY_MODEL_LOADING
+          value: "true"
+        - name: AUTO_CLEANUP_ENABLED
+          value: "true"
+        - name: COST_OPTIMIZATION_MODE
+          value: "aggressive"
+        - name: SCALE_TO_ZERO_TIMEOUT
+          value: "300"
+        
+        # Resource limits to control costs
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+          requests:
+            cpu: "100m"  # Very low request for cost optimization
+            memory: "256Mi"
+        
+        # Health checks for proper scaling
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# Horizontal Pod Autoscaler for cost optimization
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: genai-portfolio-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    name: genai-portfolio
+  
+  minReplicas: 0  # Scale to ZERO when idle
+  maxReplicas: 5  # Reasonable max for cost control
+  
+  # Scale based on actual usage
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  
+  # Aggressive scale-down for cost savings
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+    
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+
+---
+# Cost monitoring and alerting
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cost-monitoring-config
+data:
+  cost-threshold-daily: "10.00"
+  cost-threshold-monthly: "100.00"
+  alert-email: "developer@example.com"
+  
+  # Auto-cleanup settings
+  cleanup-schedule: "0 2 * * *"  # Daily at 2 AM
+  max-idle-hours: "1"
+  
+  # Resource optimization
+  enable-gpu-preemption: "true"
+  use-spot-instances: "true" 

@@ -1,0 +1,4 @@
+# Deployment requirements
+google-cloud-cli==456.0.0
+docker==7.1.0
+terraform==1.5.0 

@@ -144,4 +144,9 @@ deploy-cost-dashboard.sh
 # Security and setup summaries
 SECURITY_FIXES_SUMMARY.md
 
+# Personal deployment guide (contains sensitive information)
+PERSONAL_DEPLOYMENT_GUIDE.md
+
 # ===== END INFORMATIONAL FILES ===== 
+# Personal deployment guide (contains sensitive information)
+PERSONAL_DEPLOYMENT_GUIDE.md
